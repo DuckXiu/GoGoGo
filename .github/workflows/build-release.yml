@@ -1,0 +1,113 @@
+name: Build Release
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - '*'
+
+permissions:
+  contents: write
+
+jobs:
+  Build:
+    name: Release APK
+    runs-on: ubuntu-latest
+    steps:
+      # https://github.com/marketplace/actions/checkout
+      - uses: actions/checkout@v5
+
+      # 设置 JDK
+      - name: set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'adopt'
+          cache: gradle
+
+      - name: Get Tag
+        id: var
+        run: echo "tag=${GITHUB_REF#refs/*/}" >> $GITHUB_OUTPUT
+
+      # 创建 local.properties 文件
+      - name: Create local.properties
+        run: |
+          cat << EOF > local.properties
+          MAPS_API_KEY=${{ secrets.MAPS_API_KEY }}
+          MAPS_SAFE_CODE=${{ secrets.MAPS_SAFE_CODE }}
+          EOF
+
+      - name: Build APK
+        run: bash ./gradlew assembleRelease
+
+      - name: Get Build Tool Version
+        shell: bash
+        run: |
+          BUILD_TOOL_VERSION=$(ls /usr/local/lib/android/sdk/build-tools/ | tail -n 1)
+          echo "BUILD_TOOL_VERSION=$BUILD_TOOL_VERSION" >> $GITHUB_ENV
+          echo Last build tool version is: $BUILD_TOOL_VERSION
+
+      # https://github.com/marketplace/actions/sign-android-release
+      - name: Sign APK
+        id: sign_apk
+        uses: r0adkll/sign-android-release@v1
+        with:
+          releaseDirectory: app/build/outputs/apk/release
+          signingKeyBase64: ${{ secrets.SIGNING_KEY }}
+          alias: ${{ secrets.ALIAS }}
+          keyStorePassword: ${{ secrets.KEY_STORE_PASSWORD }}
+          keyPassword: ${{ secrets.KEY_PASSWORD }}
+        env:
+          BUILD_TOOLS_VERSION: ${{ env.BUILD_TOOL_VERSION }}
+
+      - name: Get Signed APK Name
+        run: |
+          FULL_PATH=${{steps.sign_apk.outputs.signedReleaseFile}}
+          FILENAME=$(basename "$FULL_PATH")
+          echo "FILENAME=${FILENAME}" >> $GITHUB_ENV  # 存储到环境变量
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.FILENAME }}
+          path: ${{steps.sign_apk.outputs.signedReleaseFile}}
+
+      # https://github.com/marketplace/actions/auto-changelog
+      # require commit format are "type(category): description [flag]"
+      - name: Make Changelog
+        uses: ardalanamini/auto-changelog@v4.0.4
+        id  : changelog
+        with:
+          github-token            : ${{ github.token }}
+          commit-types            : |
+            feat: New Features
+            fix: Bug Fixes
+            build: Build System & Dependencies
+            perf: Performance Improvements
+            docs: Documentation
+            test: Tests
+            refactor: Refactors
+            chore: Chores
+            ci: CI
+            style: Code Style
+            revert: Reverts
+          default-commit-type     : Other Changes
+          mention-authors         : true
+          mention-new-contributors: true
+          include-compare-link    : true
+
+      - name: Upload Changelog
+        uses: actions/upload-artifact@v4
+        with:
+          name: Changelog
+          path: ${{ steps.changelog.outputs.changelog }}
+
+      # https://github.com/marketplace/actions/gh-release
+      - name: Release APK
+        uses: softprops/action-gh-release@v2.3.2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          token: ${{ github.token }}
+          body: ${{ steps.changelog.outputs.changelog }}
+          prerelease: false
+          files: ${{steps.sign_apk.outputs.signedReleaseFile}}

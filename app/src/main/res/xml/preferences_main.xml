@@ -1,0 +1,48 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    app:iconSpaceReserved="false">
+    
+    <PreferenceCategory
+        app:title="关于与版权"
+        app:iconSpaceReserved="false">
+
+        <Preference
+            app:key="setting_license"
+            app:title="版权声明"
+            app:summary="GPL-3.0-only © ZCShou"
+            app:iconSpaceReserved="false"/>
+
+        <Preference
+            app:key="setting_original_author_url"
+            app:title="原作者项目地址"
+            app:summary="https://github.com/ZCShou/GoGoGo"
+            app:iconSpaceReserved="false">
+            <intent android:action="android.intent.action.VIEW"
+                    android:data="https://github.com/ZCShou/GoGoGo" />
+        </Preference>
+
+        <Preference
+            app:key="setting_modifier"
+            app:title="修改者"
+            app:summary="DuckXiu"
+            app:iconSpaceReserved="false"/>
+
+        <Preference
+            app:key="setting_modifier_url"
+            app:title="修改者项目地址"
+            app:summary="https://github.com/DuckXiu/GoGoGo"
+            app:iconSpaceReserved="false">
+            <intent android:action="android.intent.action.VIEW"
+                    android:data="https://github.com/DuckXiu/GoGoGo" />
+        </Preference>
+
+        <Preference
+            app:key="setting_author"
+            app:title="@string/setting_author"
+            app:defaultValue="@string/app_author"
+            app:summary="@string/app_author"
+            app:iconSpaceReserved="false"/>
+            
+    </PreferenceCategory>
+
+</PreferenceScreen>
