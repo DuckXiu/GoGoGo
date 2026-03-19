@@ -15,6 +15,8 @@
 [![Build Check](https://github.com/ZCShou/GoGoGo/actions/workflows/build-check.yml/badge.svg)](https://github.com/ZCShou/GoGoGo/actions/workflows/build-check.yml)
 [![CodeQL](https://github.com/ZCShou/GoGoGo/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/ZCShou/GoGoGo/actions/workflows/codeql-analysis.yml)
 </div>
+
+
 # GoGoGo (二次开发版)
 > **声明：**
 > 本项目是基于原作者 [ZCShou/GoGoGo](https://github.com/ZCShou/GoGoGo) 进行的二次开发修改版本。
@@ -25,8 +27,10 @@
 > **二次开发作者：** [DuckXiu](https://github.com/DuckXiu)
 > **二次开发项目地址：** https://github.com/DuckXiu/GoGoGo
 ## 本版本主要修改内容：
-1. 修改了设置界面的选项逻辑
-2. ... (列出您的主要改动)
+1. 增加路线模拟功能 使其成为一个路线模拟的软件。
+
+
+
 <div align="center">
 影梭 - 用于 Android 8.0+ 的无需 ROOT 权限的虚拟定位 APP
 </div>
